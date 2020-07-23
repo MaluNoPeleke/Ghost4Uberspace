@@ -5,23 +5,27 @@ PACKAGE_VERSION_OLD=$(sed -nE 's/^\s*"version": "(.*?)",$/\1/p' $GHOSTDIR/curren
 CURRENT_GHOST=$(curl -s https://api.github.com/repos/TryGhost/Ghost/releases | grep tag_name | head -n 1 | cut -d '"' -f 4)
 CURRENT_GHOST_DOWNLOAD=$(curl -s https://api.github.com/repos/TryGhost/Ghost/releases/latest | grep browser_download_url | cut -d '"' -f 4)
 CURRENT_GHOST_FILE=$(echo $CURRENT_GHOST_DOWNLOAD | sed 's:.*/::')
-echo "Pruefe auf Aktualisierung von npm..."
-echo "Node.js version: $( node -v)" && echo "npm version: $(npm -v)"
-npm install -g npm
-echo "Pruefe auf Aktualisierung von knex-migrator..."
-echo "knex-migrator version: $(knex-migrator -v)"
-npm install -g knex-migrator
-echo "Pruefe auf Aktualisierung von yarn..."
-echo "yarn version: $(yarn --version)"
-curl --compressed -o- -L https://yarnpkg.com/install.sh | bash
 echo "Installierte Version von Ghost: $PACKAGE_VERSION_OLD"
 echo " Verfuegbare Version von Ghost: $CURRENT_GHOST"
 cd $GHOSTDIR
-if [[ $CURRENT_GHOST != $PACKAGE_VERSION_OLD ]]
+if [[ $CURRENT_GHOST > $PACKAGE_VERSION_OLD ]]
 then
 	read -r -p "Soll Ghost jetzt von Version $PACKAGE_VERSION_OLD auf $CURRENT_GHOST aktualisiert werden? [J/n] " response
 	if [[ $response =~ ^([jJ][aA]|[jJ]|"")$ ]]
 	then
+		echo "Pruefe auf Aktualisierung von npm..."
+		echo "Node.js version: $( node -v)" && echo "Bisherige npm version: $(npm -v)"
+		npm install -g npm
+		echo "Neue npm version: $(npm -v)"
+		echo "Pruefe auf Aktualisierung von knex-migrator..."
+		echo "Bisherige knex-migrator version: $(knex-migrator -v)"
+		npm install -g knex-migrator
+		echo "Neue knex-migrator version: $(knex-migrator -v)"
+		echo "Pruefe auf Aktualisierung von yarn..."
+		echo "Bisherige yarn version: $(yarn --version)"
+		#curl --compressed -o- -L https://yarnpkg.com/install.sh | bash
+		yarn set version latest
+		echo "Neue yarn version: $(yarn --version)"
 		echo "Ghost $CURRENT_GHOST wird heruntergeladen und entpackt..."
 		cd $GHOSTDIR/versions/
 		curl -LOk $CURRENT_GHOST_DOWNLOAD
@@ -45,4 +49,4 @@ then
 	fi
 else
 	echo "-> Ghost ist bereits auf dem aktuellen Stand, keine Aktualisierung notwendig"
-fi 
+fi
