@@ -2,7 +2,7 @@
 #set -v
 GHOSTDIR=~/ghost
 PACKAGE_VERSION_OLD=$(sed -nE 's/^\s*"version": "(.*?)",$/\1/p' $GHOSTDIR/current/package.json)
-CURRENT_GHOST=$(curl -s https://api.github.com/repos/TryGhost/Ghost/releases/latest | grep tag_name | head -n 1 | cut -d '"' -f 4)
+CURRENT_GHOST=$(curl -s https://api.github.com/repos/TryGhost/Ghost/releases/latest | grep \"name\": | head -n 1 | cut -d '"' -f 4)
 CURRENT_GHOST_DOWNLOAD=$(curl -s https://api.github.com/repos/TryGhost/Ghost/releases/latest | grep browser_download_url | cut -d '"' -f 4)
 CURRENT_GHOST_FILE=$(echo $CURRENT_GHOST_DOWNLOAD | sed 's:.*/::')
 
@@ -47,7 +47,7 @@ then
                 echo "Loesche alte Versionen" && echo $dir && echo "Behalte die letzten drei Versionen" && echo $keep
                 cd $GHOSTDIR/versions && ls -1rd */ | tail -n +4 | xargs rm -rf
                                 echo "Bei Fehlern Logfile ueberpruefen: 'supervisorctl tail ghost'"
-                echo "Zum Zuruecksetzen auf Ghost $PACKAGE_VERSION_OLD folgenden Befehl ausfuehren: 'ln -sfn $GHOSTDIR/versions/$PACKAGE_VERSION_OLD $GHOSTDIR/current' und dann per 'supervisorctl resta$
+                echo "Zum Zuruecksetzen auf Ghost $PACKAGE_VERSION_OLD folgenden Befehl ausfuehren: 'ln -sfn $GHOSTDIR/versions/$PACKAGE_VERSION_OLD $GHOSTDIR/current' und dann per 'supervisorctl restart ghost' neustarten."
         else
                 echo "-> Ghost wird nicht aktualisiert"
         fi
